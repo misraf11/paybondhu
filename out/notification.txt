@@ -1,0 +1,16 @@
+    NotificationRecord(0x0a7fde5f: pkg=com.paybondhu.app user=UserHandle{0} id=4101 tag=null importance=2 key=0|com.paybondhu.app|4101|null|10192: Notification(channel=pb_sync_status shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x6a color=0xff0a57ff category=service actions=1 vis=PUBLIC))
+      uid=10192 userId=0
+      opPkg=com.paybondhu.app
+      icon=Icon(typ=RESOURCE pkg=com.paybondhu.app id=0x7f050006)
+      flags=0x6a
+      originalFlags=0x4a
+      pri=-1
+      key=0|com.paybondhu.app|4101|null|10192
+      seen=true
+      groupKey=0|com.paybondhu.app|4101|null|10192
+      notification=
+            fullscreenIntent=null
+            contentIntent=PendingIntent{aacd0ac: PendingIntentRecord{3212b9b com.paybondhu.app startActivity (allowlist: e24937b:+30s0ms/0/NOTIFICATION_SERVICE/NotificationManagerService)}}
+            deleteIntent=null
+            number=0
+            groupAlertBehavior=0

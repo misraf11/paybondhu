@@ -1,0 +1,12 @@
+{"path": "/api/device-connect", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083", "recent": "1"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/add-data", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083", "address": "bKash", "message": "You have received Tk 1,250.00 from 01712345678. Fee Tk 0.00. Balance Tk 5,300.50. TrxID BKX7A1B2C3 at 17/10/2026 14:32"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/add-data", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083", "address": "Nagad", "message": "Money Received. Amount: Tk 500.00 Sender: 01898765432 Ref: N/A TxnID: NGD91ZQ4ML Balance: Tk 2,100.00 17/10/2026 14:35"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083"}}
+{"path": "/api/add-data", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083", "address": "bKash", "message": "You have received Tk 20.00 from 01711111111. Fee Tk 0.00. Balance Tk 90.00. TrxID REJECTME9A1 at 17/10/2026 14:38"}}
+{"path": "/api/device-status", "params": {"user_email": "shop@example.com", "device_key": "TESTKEY0123456789TESTKEY0123456789TESTKEY", "device_ip": "c729b341786cc083", "recent": "1"}}

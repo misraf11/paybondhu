@@ -1,0 +1,2 @@
+  * ServiceRecord{88fdc19 u0 com.paybondhu.app/.sync.SyncService}
+    isForeground=true foregroundId=4101 types=40000000 foregroundNoti=Notification(channel=pb_sync_status shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x6a color=0xff0a57ff category=service actions=1 vis=PUBLIC)
