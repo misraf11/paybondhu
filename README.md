@@ -40,3 +40,15 @@ uses them automatically. (Switching keys needs a one-time uninstall/reinstall on
 1. Raise `versionCode` / `versionName` in `app/build.gradle.kts`.
 2. Raise `versionCode` / `versionName` in the website's `app/Config/AndroidApp.php` and upload the new APK to
    `public/assets/downloads/PayBondhu.apk`. Phones then show an "Update available" card.
+
+## Releasing an update (automatic)
+
+1. Edit `app/build.gradle.kts`: raise `versionCode` (must be higher than before) and set `versionName`.
+2. Commit and push to `main`.
+3. GitHub Actions builds the signed APK, publishes it as release `v<versionName>` and writes
+   `latest.json` to the `builds` branch.
+4. paybondhu.com checks `latest.json` at most every 20 minutes (on a phone heartbeat or `/cron`),
+   verifies the SHA-256 and replaces `public/assets/downloads/PayBondhu.apk`.
+5. Phones see the higher version in `api/device-status` and show **Update available** with a download button.
+
+Keep `applicationId` and the signing key the same, otherwise Android refuses to install over the old version.

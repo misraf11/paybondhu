@@ -76,6 +76,18 @@ jobs:
           cp build.log "$RUNNER_TEMP/out/build-full.log"
           if [ -f "$APK" ]; then
             cp "$APK" "$RUNNER_TEMP/out/PayBondhu.apk"
+            G="$GITHUB_WORKSPACE/app/build.gradle.kts"
+            VER=$(grep -oP 'versionName\s*=\s*"\K[^"]+' "$G" | head -n1)
+            VC=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' "$G" | head -n1)
+            SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+            SIZE=$(stat -c %s "$APK")
+            # 1) release asset first, so latest.json never points at a missing file
+            gh release view "v$VER" >/dev/null 2>&1 || gh release create "v$VER" --target "$GITHUB_SHA" --title "PayBondhu $VER" --notes "Android app $VER. Download PayBondhu.apk and install it on the phone that receives your payment SMS."
+            gh release upload "v$VER" "$RUNNER_TEMP/out/PayBondhu.apk" --clobber
+            # 2) manifest read by the server (AndroidRelease::sync)
+            cat > "$RUNNER_TEMP/out/latest.json" <<JSON
+          {"versionCode":$VC,"versionName":"$VER","sha256":"$SHA","size":$SIZE,"apk_url":"https://github.com/${GITHUB_REPOSITORY}/releases/download/v$VER/PayBondhu.apk","commit":"$GITHUB_SHA","built_at":"$(date -u +%FT%TZ)"}
+          JSON
           fi
           mkdir -p "$RUNNER_TEMP/pub" && cd "$RUNNER_TEMP/pub"
           git init -q
@@ -86,12 +98,6 @@ jobs:
           git add -A
           git commit -q -m "Build output for $GITHUB_SHA"
           git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" builds:builds
-          cd "$GITHUB_WORKSPACE"
-          if [ -f "$APK" ]; then
-            VER=$(grep -oP 'versionName = "\K[^"]+' "$GITHUB_WORKSPACE/app/build.gradle.kts" 2>/dev/null || echo "2.0.0")
-            gh release view "v$VER" >/dev/null 2>&1 || gh release create "v$VER" --target "$GITHUB_SHA" --title "PayBondhu $VER" --notes "Android app $VER. Download PayBondhu.apk and install it on the phone that receives your payment SMS."
-            gh release upload "v$VER" "$RUNNER_TEMP/out/PayBondhu.apk" --clobber
-          fi
 
       - name: Fail if the build failed
         if: steps.build.outputs.code != '0'
