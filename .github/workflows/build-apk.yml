@@ -1,0 +1,97 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Optional: sign with your own private key. Add these four repository secrets
+      # (Settings > Secrets and variables > Actions). Without them the committed
+      # keystore/paybondhu-public.jks is used.
+      - name: Private signing key (optional)
+        env:
+          KS_B64: ${{ secrets.PB_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.PB_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.PB_KEY_ALIAS }}
+          KS_KEYPASS: ${{ secrets.PB_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            {
+              echo "PB_KEYSTORE_FILE=$RUNNER_TEMP/release.jks"
+              echo "PB_KEYSTORE_PASSWORD=$KS_PASS"
+              echo "PB_KEY_ALIAS=$KS_ALIAS"
+              echo "PB_KEY_PASSWORD=$KS_KEYPASS"
+            } >> "$GITHUB_ENV"
+            echo "Using private signing key"
+          else
+            echo "Using public signing key"
+          fi
+
+      - name: Build release APK
+        id: build
+        run: |
+          set +e
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --stacktrace assembleRelease > build.log 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          tail -n 60 build.log
+          exit 0
+
+      - name: Publish APK and log
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          APK=app/build/outputs/apk/release/app-release.apk
+          rm -rf "$RUNNER_TEMP/out" && mkdir -p "$RUNNER_TEMP/out"
+          {
+            echo "build exit code: ${{ steps.build.outputs.code }}"
+            echo "commit: $GITHUB_SHA"
+            echo "----- errors -----"
+            grep -E "^e: |error:|FAILED|What went wrong|Execution failed|Unresolved|Caused by" build.log | head -n 120
+            echo "----- tail -----"
+            tail -n 120 build.log
+          } > "$RUNNER_TEMP/out/build-summary.txt"
+          cp build.log "$RUNNER_TEMP/out/build-full.log"
+          if [ -f "$APK" ]; then
+            cp "$APK" "$RUNNER_TEMP/out/PayBondhu.apk"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan builds-tmp
+          git rm -rf . -q || true
+          cp "$RUNNER_TEMP"/out/* .
+          git add -A
+          git commit -m "Build output for $GITHUB_SHA" -q
+          git push -f origin builds-tmp:builds
+          if [ -f "$APK" ]; then
+            VER=$(grep -oP 'versionName = "\K[^"]+' "$GITHUB_WORKSPACE/app/build.gradle.kts" 2>/dev/null || echo "2.0.0")
+            gh release view "v$VER" >/dev/null 2>&1 || gh release create "v$VER" --target "$GITHUB_SHA" --title "PayBondhu $VER" --notes "Android app $VER. Download PayBondhu.apk and install it on the phone that receives your payment SMS."
+            gh release upload "v$VER" "$RUNNER_TEMP/out/PayBondhu.apk" --clobber
+          fi
+
+      - name: Fail if the build failed
+        if: steps.build.outputs.code != '0'
+        run: exit 1
