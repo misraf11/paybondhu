@@ -23,7 +23,7 @@ adb shell dumpsys deviceidle whitelist +$PKG > /dev/null
 adb logcat -c
 
 # 1. Login screen with deep-link prefill
-adb shell am start -a android.intent.action.VIEW -d 'paybondhu://connect?email=shop@example.com&key=TESTKEY0123456789TESTKEY0123456789TESTKEY' $PKG
+adb shell "am start -a android.intent.action.VIEW -d 'paybondhu://connect?email=shop@example.com&key=TESTKEY0123456789TESTKEY0123456789TESTKEY' $PKG"
 sleep 6; shot 01-login; dump 01-login
 tap_text "Connect"
 sleep 10; shot 02-home-empty; dump 02-home-empty
