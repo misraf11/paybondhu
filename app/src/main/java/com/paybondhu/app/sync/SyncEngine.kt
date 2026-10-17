@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.PowerManager
 import android.provider.Telephony
 import androidx.core.content.ContextCompat
 import com.paybondhu.app.data.Db
@@ -116,6 +117,13 @@ object SyncEngine {
         if (!Prefs.loggedIn) return false
         return mutex.withLock {
             refreshUi(app) { it.copy(running = true) }
+            val pm = app.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "paybondhu:sync")
+            wl.setReferenceCounted(false)
+            try {
+                wl.acquire(90_000L)
+            } catch (_: Exception) {
+            }
             var ok = false
             try {
                 if (Prefs.scanInbox && hasSmsRead(app)) {
@@ -127,7 +135,11 @@ object SyncEngine {
                 }
 
                 val wantRecent = full || System.currentTimeMillis() - Prefs.lastFullAt > 10 * 60 * 1000
-                val st = Api.status(wantRecent)
+                var st = Api.status(wantRecent)
+                if (!st.network && !st.ok && !st.auth && st.code == "bad_response") {
+                    // Older server without api/device-status: device-connect also refreshes the online timestamp.
+                    st = Api.connect(Prefs.server, Prefs.email, Prefs.deviceKey, Prefs.deviceId)
+                }
                 if (st.network) {
                     refreshUi(app) { it.copy(running = false, online = false, error = st.message) }
                     return@withLock false
@@ -175,6 +187,11 @@ object SyncEngine {
             } catch (e: Exception) {
                 refreshUi(app) { it.copy(running = false, error = e.message ?: "Error") }
                 return@withLock false
+            } finally {
+                try {
+                    if (wl.isHeld) wl.release()
+                } catch (_: Exception) {
+                }
             }
             refreshUi(app) { it.copy(running = false, online = true, error = "") }
             ok

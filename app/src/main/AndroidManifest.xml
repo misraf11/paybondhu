@@ -64,6 +64,10 @@
         </receiver>
 
         <receiver
+            android:name=".sync.AlarmReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".sync.BootReceiver"
             android:exported="true">
             <intent-filter>

@@ -60,6 +60,7 @@ class SyncService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        Alarms.schedule(applicationContext)
         if (intent?.action == ACTION_SYNC) {
             scope.launch { SyncEngine.run(applicationContext, "manual", full = true) }
         }

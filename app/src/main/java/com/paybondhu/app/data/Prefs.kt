@@ -14,7 +14,7 @@ object Lang {
 }
 
 object Prefs {
-    const val DEFAULT_SERVER = "https://paybondhu.com/"
+    val DEFAULT_SERVER: String = com.paybondhu.app.BuildConfig.DEFAULT_SERVER
 
     private const val FILE = "pb_prefs"
     private lateinit var sp: SharedPreferences
@@ -24,9 +24,11 @@ object Prefs {
     fun init(context: Context) {
         if (inited) return
         sp = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
-        Lang.code = sp.getString("lang", "en") ?: "en"
+        Lang.code = sp.getString("lang", defaultLang()) ?: "en"
         inited = true
     }
+
+    private fun defaultLang(): String = if (java.util.Locale.getDefault().language == "bn") "bn" else "en"
 
     private fun str(key: String, def: String = ""): String = sp.getString(key, def) ?: def
 
@@ -55,7 +57,7 @@ object Prefs {
         set(v) = sp.edit().putString("plan_expire", v).apply()
 
     var lang: String
-        get() = str("lang", "en")
+        get() = str("lang", defaultLang())
         set(v) {
             sp.edit().putString("lang", v).apply()
             Lang.code = v

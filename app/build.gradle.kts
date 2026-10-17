@@ -42,9 +42,12 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "DEFAULT_SERVER", "\"https://paybondhu.com/\"")
         }
         debug {
             signingConfig = signingConfigs.getByName("release")
+            // The CI emulator test talks to a stub server on the host machine.
+            buildConfigField("String", "DEFAULT_SERVER", "\"http://10.0.2.2:8080/\"")
         }
     }
 

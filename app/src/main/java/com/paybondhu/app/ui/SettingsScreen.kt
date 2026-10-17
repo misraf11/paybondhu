@@ -45,6 +45,7 @@ import com.paybondhu.app.data.Lang
 import com.paybondhu.app.data.Prefs
 import com.paybondhu.app.data.T
 import com.paybondhu.app.net.Api
+import com.paybondhu.app.sync.Alarms
 import com.paybondhu.app.sync.SyncEngine
 import com.paybondhu.app.sync.SyncScheduler
 import com.paybondhu.app.sync.SyncService
@@ -220,6 +221,7 @@ fun SettingsScreen(
                         }
                         SyncService.stop(ctx)
                         SyncScheduler.cancelAll(ctx)
+                        Alarms.cancel(ctx)
                         val keepEmail = Prefs.email
                         Prefs.logout()
                         Prefs.email = keepEmail

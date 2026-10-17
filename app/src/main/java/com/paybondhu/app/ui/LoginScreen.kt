@@ -101,6 +101,7 @@ fun LoginScreen(prefill: Pair<String, String>?, onDone: () -> Unit) {
                     Prefs.authError = ""
                     Prefs.lastSyncAt = 0L
                     SyncScheduler.ensurePeriodic(ctx)
+                    com.paybondhu.app.sync.Alarms.schedule(ctx)
                     SyncService.start(ctx)
                     onDone()
                 }

@@ -58,15 +58,26 @@ private fun MainShell(onLoggedOut: () -> Unit) {
     var detail by remember { mutableStateOf<Msg?>(null) }
     var smsTries by remember { mutableIntStateOf(0) }
 
+    val batteryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        perms = Perms.read(ctx)
+    }
+    val askBattery = {
+        try {
+            batteryLauncher.launch(Perms.batteryIntent(ctx))
+        } catch (_: Exception) {
+            ctx.startActivity(Perms.appSettings(ctx))
+        }
+    }
     val runtimeLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         perms = Perms.read(ctx)
+        if (!perms.battery && !Prefs.batteryAsked) {
+            Prefs.batteryAsked = true
+            askBattery()
+        }
         scope.launch {
             SyncService.start(ctx)
             SyncEngine.run(ctx, "manual")
         }
-    }
-    val batteryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        perms = Perms.read(ctx)
     }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -100,13 +111,7 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             ctx.startActivity(Perms.appSettings(ctx))
         }
     }
-    val allowBattery = {
-        try {
-            batteryLauncher.launch(Perms.batteryIntent(ctx))
-        } catch (_: Exception) {
-            ctx.startActivity(Perms.appSettings(ctx))
-        }
-    }
+    val allowBattery = { askBattery() }
     val loggedOut = {
         onLoggedOut()
     }

@@ -63,7 +63,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -x
           APK=app/build/outputs/apk/release/app-release.apk
           rm -rf "$RUNNER_TEMP/out" && mkdir -p "$RUNNER_TEMP/out"
           {
@@ -78,14 +77,16 @@ jobs:
           if [ -f "$APK" ]; then
             cp "$APK" "$RUNNER_TEMP/out/PayBondhu.apk"
           fi
+          mkdir -p "$RUNNER_TEMP/pub" && cd "$RUNNER_TEMP/pub"
+          git init -q
+          cp "$RUNNER_TEMP"/out/* .
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan builds-tmp
-          git rm -rf . -q || true
-          cp "$RUNNER_TEMP"/out/* .
+          git checkout -q -b builds
           git add -A
-          git commit -m "Build output for $GITHUB_SHA" -q
-          git push -f origin builds-tmp:builds
+          git commit -q -m "Build output for $GITHUB_SHA"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" builds:builds
+          cd "$GITHUB_WORKSPACE"
           if [ -f "$APK" ]; then
             VER=$(grep -oP 'versionName = "\K[^"]+' "$GITHUB_WORKSPACE/app/build.gradle.kts" 2>/dev/null || echo "2.0.0")
             gh release view "v$VER" >/dev/null 2>&1 || gh release create "v$VER" --target "$GITHUB_SHA" --title "PayBondhu $VER" --notes "Android app $VER. Download PayBondhu.apk and install it on the phone that receives your payment SMS."

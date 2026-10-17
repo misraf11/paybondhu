@@ -10,6 +10,7 @@ class BootReceiver : BroadcastReceiver() {
         Prefs.init(context)
         SyncScheduler.ensurePeriodic(context)
         if (Prefs.loggedIn) {
+            Alarms.schedule(context)
             SyncService.start(context)
             SyncScheduler.kick(context)
         }
